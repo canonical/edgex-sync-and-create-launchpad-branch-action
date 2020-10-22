@@ -5,6 +5,9 @@ inputs:
   edgex-repo:
     description: "The name of the upstream EdgeX repository"
     required: true
+  canonical-repo:
+    description: "The name of the Canonical EdgeX mirror repository"
+    required: true
   ssh-private-key:
     description: "The SSH private key to use"
     required: true
@@ -23,7 +26,7 @@ runs:
         
         git clone "git@github.com:siggiskulason/edgex-sync" edgex-sync
         SOURCE_REPO="git@github.com:edgexfoundry/${{ inputs.edgex-repo }}.git"
-        DESTINATION_REPO="git@github.com:siggiskulason/${{ inputs.edgex-repo }}.git"
+        DESTINATION_REPO="git@github.com:canonical/${{ inputs.canonical-repo }}.git"
         echo "SOURCE=$SOURCE_REPO"
         echo "DESTINATION=$DESTINATION_REPO"
         git clone "$SOURCE_REPO" source-dir --origin source

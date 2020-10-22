@@ -52,6 +52,11 @@ runs:
         if [ ! -z "${{ inputs.patch-file }}" ] && [ -f $PATCH_FILE  ] ; then
           echo "Applying patch"
           patch -p1 < $PATCH_FILE
+        else
+          echo "No patch applied"
+          echo "${{ inputs.patch-file }}" 
+          echo $PATCH_FILE
+          
         fi
 
         /usr/bin/git status

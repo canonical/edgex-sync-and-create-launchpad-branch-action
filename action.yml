@@ -24,7 +24,7 @@ runs:
         ssh-add - <<< "${{inputs.ssh-private-key}}"
         echo "${{inputs.edgex-repo}}"
         
-        git clone "git@github.com:siggiskulason/edgex-sync" edgex-sync
+        git clone "git@github.com:canonical/edgex-sync" edgex-sync
         SOURCE_REPO="git@github.com:edgexfoundry/${{ inputs.edgex-repo }}.git"
         DESTINATION_REPO="git@github.com:canonical/${{ inputs.canonical-repo }}.git"
         echo "SOURCE=$SOURCE_REPO"

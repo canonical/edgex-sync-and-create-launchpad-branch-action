@@ -1,0 +1,65 @@
+# action.yml
+name: 'Sync and version EdgeX'
+description: 'Sync an EdgeX repo, create an ephimeral launchpad repo and version it'
+inputs:
+  edgex-repo:
+    description: "The name of the upstream EdgeX repository"
+    required: true
+  ssh-private-key:
+    description: "The SSH private key to use"
+    required: true
+  patch-file:
+     description: "If present, name of a patch file to use"
+     required: false
+runs:
+  using: composite
+  steps:
+    - run: |
+        mkdir -p ~/.ssh/
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+        ssh-agent -a ${SSH_AUTH_SOCK} > /dev/null
+        ssh-add - <<< "${{inputs.ssh-private-key}}"
+        echo "${{inputs.edgex-repo}}"
+        
+        git clone "git@github.com:siggiskulason/edgex-sync" edgex-sync
+        SOURCE_REPO="git@github.com:edgexfoundry/${{ inputs.edgex-repo }}.git"
+        DESTINATION_REPO="git@github.com:siggiskulason/${{ inputs.edgex-repo }}.git"
+        echo "SOURCE=$SOURCE_REPO"
+        echo "DESTINATION=$DESTINATION_REPO"
+        git clone "$SOURCE_REPO" source-dir --origin source
+        cd source-dir
+        git remote add destination "$DESTINATION_REPO"
+        git fetch source '+refs/heads/*:refs/heads/*' --update-head-ok
+ 
+        git --no-pager branch -a -vv
+        git push destination "refs/remotes/source/master:refs/heads/master" -f
+
+        git push destination "refs/remotes/source/master:refs/heads/launchpad" -f
+
+        git push destination "refs/tags/*:refs/tags/*" -f
+
+        cd ..
+        git clone "$DESTINATION_REPO" dest-dir
+        cd dest-dir
+        ls
+        git checkout launchpad
+        
+        PATCH_FILE="../edgex-sync/patches/${{ inputs.edgex-repo }}/${{ inputs.patch-file }}"
+        ls -al $PATCH_FILE
+        if [ ! -z "${{ inputs.patch-file }}" ] && [ -f $PATCH_FILE  ] ; then
+          echo "Applying patch"
+          patch -p1 < $PATCH_FILE
+        fi
+
+        /usr/bin/git status
+        /usr/bin/git config user.name github-actions
+        /usr/bin/git config user.email action@github.com
+        /usr/bin/git describe --tags --abbrev=0 | sed "s/v1/1/" > VERSION
+        /usr/bin/git add -f VERSION
+        /usr/bin/git add -u
+        /usr/bin/git commit -m "Added VERSION"
+        /usr/bin/git push
+        
+      shell: bash 
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock

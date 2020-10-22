@@ -48,7 +48,6 @@ runs:
         git checkout launchpad
         
         PATCH_FILE="../edgex-sync/patches/${{ inputs.edgex-repo }}/${{ inputs.patch-file }}"
-        ls -al $PATCH_FILE
         if [ ! -z "${{ inputs.patch-file }}" ] && [ -f $PATCH_FILE  ] ; then
           echo "Applying patch"
           patch -p1 < $PATCH_FILE

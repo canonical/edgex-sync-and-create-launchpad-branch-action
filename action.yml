@@ -34,11 +34,8 @@ runs:
         git remote add destination "$DESTINATION_REPO"
         git fetch source '+refs/heads/*:refs/heads/*' --update-head-ok
  
-        git --no-pager branch -a -vv
-        git push destination "refs/remotes/source/master:refs/heads/master" -f
-
-        git push destination "refs/remotes/source/master:refs/heads/launchpad" -f
-
+        git --no-pager branch -a -vv 
+        git push destination "refs/remotes/source/main:refs/heads/launchpad" -f
         git push destination "refs/tags/*:refs/tags/*" -f
 
         cd ..
